@@ -1,0 +1,7 @@
+# ignore confidential stuff
+client_secret*
+.vscode
+*.csv
+config.py
+test*
+TODO.md
