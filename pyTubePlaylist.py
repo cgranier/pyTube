@@ -1,6 +1,7 @@
 import json
 import sys
-from apiclient.errors import HttpError
+import googleapiclient.discovery
+import googleapiclient.errors
 import urllib.request
 import csv
 import config
@@ -32,8 +33,8 @@ requestPlaylistVideos = youtubePlaylistApiUrl + 'playlistId={0}&part=id,snippet&
 # print(youtubeVideoUrl)
 
 # Playlist ID
-playlist_list = ['PLM21IsezPrtqf4Bh6H1M3zI4zNO4KIGbX']
-playlist_outFile = 'mis-3-hermanas.csv'
+playlist_list = ['PLM21IsezPrtpvlcm5UMj9X2ZsbUWzy-k6']
+playlist_outFile = 'amantes.csv'
 
 def getPlaylistVideos(playlistID):
 

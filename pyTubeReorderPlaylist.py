@@ -1,5 +1,4 @@
 import pandas
-from apiclient.errors import HttpError
 import urllib.request
 import csv
 import config
@@ -13,9 +12,9 @@ scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 def main():
     # Data needed:
     # Playlist to modify
-    playlist_ID = ['PLM21IsezPrtqf4Bh6H1M3zI4zNO4KIGbX']
+    playlist_ID = ['PLM21IsezPrtpvlcm5UMj9X2ZsbUWzy-k6']
     # CSV file with order of videos - Use pyTubePlaylist.py to retrieve the videos initially
-    ordered_videos_file = 'mis-3-hermanas.csv'
+    ordered_videos_file = 'amantes-ordered.csv'
 
     # Read the ordered CSV file into memory
     video_file = pandas.read_csv(ordered_videos_file)
