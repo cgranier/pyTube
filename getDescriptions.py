@@ -13,12 +13,8 @@ import config
 # Constants
 api_key = config.api_key
 
-# To update IPs allowed to use this key, first find your IP by googling "what's my IP"
-# then visit https://console.cloud.google.com/apis/credentials/key/132?project=pytube-185416
-# and add your IP. Save and wait a few minutes.
-
 # REST Command
-# GET https://www.googleapis.com/youtube/v3/videos?part=id%2Csnippet&id=vCdEfUueb3s&key=AIzaSyBiipbU7o4Df9s-1zHbeutJkQfaZO-7TvQ
+# GET https://www.googleapis.com/youtube/v3/videos?part=id%2Csnippet&id=vCdEfUueb3s&key=APIKEY
 
 # Strings
 
@@ -33,7 +29,7 @@ requestVideoInfo = youtubeVideoApiUrl + 'id={0}&part=id,snippet'
 youtubeVideoUrl = 'https://www.youtube.com/watch?v={0}'
 
 # For testing. Use a csv to read all the videos to process.
-video_list = ['--B7mjgLig0','--LER3VU_os','--MpLvU70-Q','--Ym3GZEmx4']
+# video_list = ['--B7mjgLig0','--LER3VU_os','--MpLvU70-Q','--Ym3GZEmx4']
 
 def getVideoURL(videoId):
     retVal = youtubeVideoUrl.format(videoId)
