@@ -33,8 +33,8 @@ requestPlaylistVideos = youtubePlaylistApiUrl + 'playlistId={0}&part=id,snippet&
 # print(youtubeVideoUrl)
 
 # Playlist ID
-playlist_list = ['PLM21IsezPrtpvlcm5UMj9X2ZsbUWzy-k6']
-playlist_outFile = 'amantes.csv'
+playlist_list = ['PLMl0Epu3qjvC0vrkRQrkCZuM9Nlln0WYa']
+playlist_outFile = 'loco-video-loco.csv'
 
 def getPlaylistVideos(playlistID):
 
