@@ -6,6 +6,8 @@ import urllib.request
 import csv
 import config
 
+scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+
 # Documentation
 # https://github.com/dsebastien/youtubeChannelVideosFinder/blob/master/youtubeChannelVideosFinder.py
 # https://stackoverflow.com/questions/15512239/python-get-all-youtube-video-urls-of-a-channel
@@ -20,7 +22,6 @@ requestChannelVideosInfo = youtubeSearchApiUrl + 'channelId={0}&part=id,snippet&
 youtubeVideoUrl = 'https://www.youtube.com/watch?v={0}'
 youtubeVideoApiUrl = youtubeApiUrl + 'videos?key={0}&'.format(api_key)
 requestVideoStats = youtubeVideoApiUrl + 'id={0}&part=statistics'
-
 
 # GET https://www.googleapis.com/youtube/v3/playlistItems?part=id%2C+snippet&maxResults=50&playlistId=PLD89ABDD950A3E5E5&key={YOUR_API_KEY}
 youtubePlaylistApiUrl = youtubeApiUrl + 'playlistItems?key={0}&'.format(api_key)
@@ -84,6 +85,33 @@ def getVideoURL(videoId):
 #     return retVal
 
 def main():
+
+    # ****
+    # Data needed:
+    # Playlist to modify
+    playlist_ID = ['PLM21IsezPrtpvlcm5UMj9X2ZsbUWzy-k6']
+    # CSV file with order of videos - Use pyTubePlaylist.py to retrieve the videos initially
+    ordered_videos_file = 'amantes-ordered.csv'
+
+    # Read the ordered CSV file into memory
+    video_file = pandas.read_csv(ordered_videos_file)
+
+    # Disable OAuthlib's HTTPS verification when running locally.
+    # *DO NOT* leave this option enabled in production.
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+    api_service_name = "youtube"
+    api_version = "v3"
+    client_secrets_file = "client_secret.json"
+
+    # Get credentials and create an API client
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+        client_secrets_file, scopes)
+    credentials = flow.run_console()
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+    # ****
+    
     out_file = playlist_outFile
     with open(out_file, 'w', newline='', encoding='utf-8') as new_file:
         out_file_headers = ['playlistItemId','videoId','videoTitle','videoURL','videoPosition']

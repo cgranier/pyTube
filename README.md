@@ -97,7 +97,7 @@ We first download the videos in the playlist using _pyTubePlaylist.py_ and then 
 For our particular data, we use the following formula to extract the episode number of each video:
 
 ```vb
-=value(trim(mid(B2,find("sodio",B2,1)+5,find("|",B2,find("|",B2)+1)-find("sodio",B2,1)-5)))
+=value(trim(mid(C2,find("sodio",C2,1)+5,find("|",C2,find("|",C2)+1)-find("sodio",C2,1)-5)))
 ```
 
 Export the data from Google Sheets as a .csv file and use it as the input to pyTubeReorderPlaylist.
