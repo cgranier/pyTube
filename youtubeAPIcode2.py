@@ -18,10 +18,10 @@ import json
 import csv
 
 # Playlist ID
-playlist_id = 'PLM21IsezPrtq1rvDBdmQLuJVPP1bKCnWu'
-playlist_outFile = 'pura-sangre-2.csv'
+playlist_id = 'PLM21IsezPrtpxRcY5x6qqMx5NzItQK7LS'
+playlist_outFile = 'negra-consentida-ordered_2.csv'
 
-# pura-sangre	PLM21IsezPrtq1rvDBdmQLuJVPP1bKCnWu
+# negra-consentida	PLM21IsezPrtpxRcY5x6qqMx5NzItQK7LS
 
 # youtubepartner scope is needed in order to use onBehalfOfContentOwner
 scopes = ["https://www.googleapis.com/auth/youtube.readonly",

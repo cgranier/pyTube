@@ -12,9 +12,9 @@ scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 def main():
     # Data needed:
     # Playlist to modify
-    playlist_id = 'PLM21IsezPrtq1rvDBdmQLuJVPP1bKCnWu'
+    playlist_id = 'PLM21IsezPrtpxRcY5x6qqMx5NzItQK7LS'
     # CSV file with order of videos - Use pyTubePlaylist.py to retrieve the videos initially
-    ordered_videos_file = 'pura-sangre-ordered.csv'
+    ordered_videos_file = 'negra-consentida-ordered.csv'
 
     # Read the ordered CSV file into memory
     video_file = pandas.read_csv(ordered_videos_file)
@@ -48,7 +48,7 @@ def main():
         playlist_item_id = getattr(row, 'playlistItemId')
         video_id = getattr(row, 'videoId')
         # Substract one from video_new_order, because playlist position is zero-based.
-        video_new_order = getattr(row, 'episode') - 1
+        video_new_order = getattr(row, 'videoEpisode') - 1
 
         request = youtube.playlistItems().update(
             onBehalfOfContentOwner=config.content_owner,
