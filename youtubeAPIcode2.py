@@ -12,13 +12,16 @@ import googleapiclient.discovery
 import googleapiclient.errors
 
 import config
+import re
 
 import json
 import csv
 
 # Playlist ID
-playlist_id = 'PLM21IsezPrtqDqn1-t9s-NPXc-w1nFZpC'
-playlist_outFile = 'natalia-8a9.csv'
+playlist_id = 'PLM21IsezPrtq1rvDBdmQLuJVPP1bKCnWu'
+playlist_outFile = 'pura-sangre-2.csv'
+
+# pura-sangre	PLM21IsezPrtq1rvDBdmQLuJVPP1bKCnWu
 
 # youtubepartner scope is needed in order to use onBehalfOfContentOwner
 scopes = ["https://www.googleapis.com/auth/youtube.readonly",
@@ -42,7 +45,7 @@ def main():
 
     out_file = playlist_outFile
     with open(playlist_outFile, 'w', newline='', encoding='utf-8') as new_file:
-        out_file_headers = ['playlistItemId','videoId','videoTitle','videoURL','videoPosition']
+        out_file_headers = ['playlistItemId','videoId','videoTitle','videoURL','videoPosition','videoEpisode']
         out_writer = csv.DictWriter(new_file, fieldnames = out_file_headers)
         out_writer.writeheader()
         
@@ -76,11 +79,12 @@ def main():
                 # videoURL = getVideoURL(videoId)
                 videoURL = 'https://www.youtube.com/watch?v={0}'.format(videoId)
                 videoPosition = video.get('snippet').get('position')
+                videoEpisode = re.search('(Episodio\s)(\d+)(\s\|)',videoTitle).group(2)
 
-                data_row = {'playlistItemId':playlistItemId,'videoId':videoId,'videoTitle':videoTitle,'videoURL':videoURL, 'videoPosition':videoPosition}
+                data_row = {'playlistItemId':playlistItemId,'videoId':videoId,'videoTitle':videoTitle,'videoURL':videoURL, 'videoPosition':videoPosition, 'videoEpisode':videoEpisode}
                 out_writer.writerow(data_row)
                 
-                print('{0},{1},{2},{3},{4}'.format(playlistItemId,videoId,videoTitle,videoURL,videoPosition))
+                print('{0},{1},{2},{3},{4},{5}'.format(playlistItemId,videoId,videoTitle,videoURL,videoPosition,videoEpisode))
 
 if __name__ == "__main__":
     main()
