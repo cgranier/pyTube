@@ -17,9 +17,11 @@ import re
 import json
 import csv
 
+import pandas as pd
+
 # Playlist ID
 playlist_id = 'PLM21IsezPrtpxRcY5x6qqMx5NzItQK7LS'
-playlist_outFile = 'negra-consentida-ordered_2.csv'
+playlist_outFile = 'negra-consentida-ordered_3.csv'
 
 # negra-consentida	PLM21IsezPrtpxRcY5x6qqMx5NzItQK7LS
 
@@ -72,6 +74,8 @@ def main():
             for video in response['items']:
                 playlistVideos.append(video)
 
+        df = pd.DataFrame.from_dict(playlistVideos)
+
         for video in playlistVideos:
                 playlistItemId = video.get('id')
                 videoId = video.get('snippet').get('resourceId').get('videoId')
@@ -85,6 +89,9 @@ def main():
                 out_writer.writerow(data_row)
                 
                 print('{0},{1},{2},{3},{4},{5}'.format(playlistItemId,videoId,videoTitle,videoURL,videoPosition,videoEpisode))
+
+        print(df.head(5))
+        print(df.tail(5))
 
 if __name__ == "__main__":
     main()
