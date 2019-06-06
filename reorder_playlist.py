@@ -65,6 +65,12 @@ def get_video_list(playlist_videos):
         video_title = video.get('snippet').get('title')
         video_url = 'https://www.youtube.com/watch?v={0}'.format(video_id)
         video_position = int(video.get('snippet').get('position'))
+        # Episode titles are in the form:
+        # La Trepadora | Episodio 1 | Norkys Batista y Jean Paul Leroux | Telenovelas RCTV
+        # This regex extracts the word 'Episodio' followed by a space into group(1)
+        # Then extracts the digits into group(2)
+        # Then extracts a space followed by a vertical character into group(3)
+        # We then assign group(2) -the episode number- into video_episode.
         video_episode = int(re.search('(Episodio\s)(\d+)(\s\|)',video_title).group(2))
 
         data_row = {'playlist_item_id':playlist_item_id,'video_id':video_id,'video_title':video_title,'video_url':video_url, 'video_position':video_position, 'video_episode':video_episode}
