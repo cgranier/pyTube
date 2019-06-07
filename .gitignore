@@ -8,3 +8,4 @@ TODO.md
 *.ipynb*
 notebooks/*
 data/*
+__pycache__
