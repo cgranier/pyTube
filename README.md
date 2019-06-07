@@ -7,6 +7,10 @@ pyTube exists to make managing large content libraries on YouTube a bit easier. 
 
 ## What's in the project ##
 
+* [reorder_playlist.py](#reorder_playlist) takes a list of YouTube Playlist IDs, gathers the videos in each playlist and reorders them according to their episode number. This is highly customized to our internal needs, but with minor modifications should work with any Playlist you own.
+
+### These have been moved to the legacy folder
+
 * [pyTubePlaylist](#pytubeplaylist) lets you download all the video metadata for a YouTube playlist.
 * [pyTubeReorderPlaylist](#pytubereorderplaylist) lets you take the metadata downloaded by pyTubePlaylist and (after some minor editing in Excel or Google Sheets) re-order the videos in the playlist by their episode number. This is particularly useful when you have a playlist with 150 episodes out of order.
 * [pyTube](#pytube2) lets you download basic stats for a list of channels.
@@ -36,17 +40,11 @@ pip install pandas
 
 ### Setup YouTube APIs ###
 
-If you're on my team, contact me for the API key. Otherwise, you will need to create a Project on Google Cloud Platform and add the YouTube Data API V3. Then you must:
+If you're on my team, contact me for API access or CMS credentials if neeeded. Otherwise, you will need to create a Project on Google Cloud Platform and add the YouTube Data API V3.
 
-1. Create an API Key credential for the project.
-2. Add the necessary restrictions to your API key to avoid unforeseen charges.
-3. Create a config.py file and add the API key to it:
+The project doesn't need an API key anymore, as it uses OAuth to authenticate you with YouTube. You will need a YouTube account with permissions to manage the channel with the Playlist. This could be the channel owner's account or a YouTube CMS account (MCN Network) with admin permissions to act on behalf of channels in the network.
 
-```python
-api_key = '[Your API Key]'
-```
-
-4. Create an OAuth token for your project in Google Cloud Platform, so that you can authorize modification of your videos (needed to reorder a playlist):
+1. Create an OAuth token for your project in Google Cloud Platform, so that you can authorize modification of your videos (needed to reorder a playlist or access private videos):
 
 * Go to the [APIs dashboard](https://console.cloud.google.com/apis/dashboard) for your project.
 
@@ -58,111 +56,67 @@ api_key = '[Your API Key]'
 
 * Move the downloaded file to your working directory and rename it client_secret.json.
 
-## pyTubePlaylist ##
+2. Create a _config.py_ file
+
+```
+# Project: Radar Network Tools
+api_key = INSERT YOUR API KEY HERE
+content_owner = INSERT YOUR CONTENT OWNER ID HERE (This is for MCN/CMS accounts only)
+```
+
+## reorder_playlist ##
 
 ### Description ###
 
-pyTubePlaylist allows you to download a list of videos within a playlist and store the information in a csv file for further processing.
+reorder_playlist allows you to download a list of videos within a playlist and modify their order within the playlist.
 
 It currently downloads the following data, but more data is available:
 
-* playlistItemId: the video's ID within the playlist. This is different than the video's ID and is necessary for updating the video within the playlist.
-* videoId: the video's ID on YouTube.
-* videoTitle: the video's title.
-* videoPosition: the video's position within the playlist.
+* playlist_item_id_: the video's ID within the playlist. This is different than the video's ID and is necessary for updating the video within the playlist.
+* video_id_: the video's ID on YouTube.
+* video_title: the video's title.
+* video_position: the video's position within the playlist.
 
 ### Arguments ###
 
-for pyTubePlaylist you must provide the playlist id and the csv file you want to write to:
+For reorder_playlist you must provide a list of playlist ids:
 
 ```python
-playlist_list = ['PLM21IsezPrtqf4Bh6H1M3zI4zNO4KIGbX']
-playlist_outFile = 'mis-3-hermanas.csv'
+PLAYLISTS = ['PLM21IsezPrtpSFaeQR7nvEft7S_4vsE8S',
+             'PLM21IsezPrtqf4Bh6H1M3zI4zNO4KIGbX']
 ```
 
 ### Run the code ###
 
 ```bash
-python pyTubePlaylist.py
+python reorder_playlist.py
 ```
 
-## pyTubeReorderPlaylist ##
+### Functions ###
 
-### Description ###
+1. get_authenticated_service
 
-pyTubeReorderPlaylist takes a csv file of videos and modifies their order in the playlist according to the _episode_ column in the csv file.
-
-We first download the videos in the playlist using _pyTubePlaylist.py_ and then modify the csv file in Google Sheets to add the episode column.
-
-For our particular data, we use the following formula to extract the episode number of each video:
-
-```vb
-=value(trim(mid(C2,find("sodio",C2,1)+5,find("|",C2,find("|",C2)+1)-find("sodio",C2,1)-5)))
-```
-
-Export the data from Google Sheets as a .csv file and use it as the input to pyTubeReorderPlaylist.
-
-pyTubeReorderPlaylist uses OAuth to authenticate the channel owner, since you need this permission to be able to modify the playlist order.
-
-It also uses the Pandas library to read the csv file.
-
-### Arguments ###
-
-pyTubeReorderPlaylist needs the Playlist ID of the playlist you wish to modify and a csv file with the following fields (currently needs all fields and in this particular order):
-
-|playlistItemId|videoId|videoTitle|videoURL|videoPosition|episode|
-|--------------|-------|----------|--------|-------------|-------|
-
-```python
-# Playlist to modify
-playlist_ID = ['PLAYLIST-ID']
-
-# CSV file with order of videos - Use pyTubePlaylist.py to retrieve the videos initially
-ordered_videos_file = 'FILENAME.csv'
-```
-
-### Run the code ###
-
-```bash
-python pyTubeReorderPlaylist.py
-```
-
-You will see a message on the command line with a URL for OAuth authentication. Copy the URL into your browser (ideally one where you've already logged in into YouTube with the account that owns the playlist you wish to reorder), follow the instructions to authorize your project to manage the YouTube account, and copy the authorization code.
+Uses the Google API Client Libraries to authorize the script to modify your channels. You will see a message on the command line with a URL for OAuth authentication. Copy the URL into your browser (ideally one where you've already logged in into YouTube with the account that owns the playlist you wish to reorder), follow the instructions to authorize your project to manage the YouTube account, and copy the authorization code.
 
 ![Authorization code request](images/oauth-url.png)
 
-Paste the authentication code into your terminal and continue. Your playlist will now be in the proper order.
+Paste the authentication code into your terminal and continue.
 
-## pyTube2 ##
+2. get_playlist_videos
 
-### Description ###
+Uses youtube.playlistItems().list to request a list of all videos in a playlist, paging through the playlist until all videos have been processed (YouTube limits results to 50 per page). Returns a JSON object with all the video metadata.
 
-pyTube2 allows you to download all the video metadata for a list of YouTube channels.
+3. get_video_list
 
-It currently downloads the following fields, but more metadata is available in the response object:
+Iterates through the video metadata collected by _get_playlist_videos_ and creates a dictionary with the data we need for reordering. Uses a regex to extract the episode number from the video title.
 
-* channelId: The Channel ID where the video resides.
-* videoTitle: The video's title.
-* videoId: The video's ID on YouTube.
-* videoViews: The amount of views on the video.
+The resulting dictionary is converted into a Pandas dataframe and reordered by episode number.
 
-### Arguments ###
+4. reorder_playlist_videos
 
-pyTube2 needs a list of Channel Ids you want to check and the csv file you want to write to:
+Calls youtube.playlistItems().update with new position data for each episode. Episodes need to be ordered from first to last in order to keep the proper position within the playlist.
 
-```python
-channel_list = ['CHANNEL-ID-1','CHANNEL-ID-2']
-```
-
-```python
-out_file = 'FILENAME.csv'
-```
-
-### Run the code ###
-
-```bash
-python pyTube2.py
-```
+**Note:** By default, YouTube limits API queries to 10,000 quota points per day. Reordering one video uses up 53 quota points right now, so you will be limited to around 180 videos per day.
 
 ## Contribution guidelines ##
 
