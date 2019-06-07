@@ -59,7 +59,6 @@ The project doesn't need an API key anymore, as it uses OAuth to authenticate yo
 2. Create a _config.py_ file
 
 ```
-# Project: Radar Network Tools
 api_key = INSERT YOUR API KEY HERE
 content_owner = INSERT YOUR CONTENT OWNER ID HERE (This is for MCN/CMS accounts only)
 ```
