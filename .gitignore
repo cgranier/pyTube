@@ -6,3 +6,5 @@ config.py
 test*
 TODO.md
 *.ipynb*
+notebooks/*
+data/*

@@ -129,7 +129,7 @@ python pyTubeReorderPlaylist.py
 
 You will see a message on the command line with a URL for OAuth authentication. Copy the URL into your browser (ideally one where you've already logged in into YouTube with the account that owns the playlist you wish to reorder), follow the instructions to authorize your project to manage the YouTube account, and copy the authorization code.
 
-![Authorization code request](oauth-url.png)
+![Authorization code request](images/oauth-url.png)
 
 Paste the authentication code into your terminal and continue. Your playlist will now be in the proper order.
 
