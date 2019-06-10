@@ -15,13 +15,7 @@ import pandas as pd
 
 # INPUT DATA
 
-PLAYLISTS = ['PLM21IsezPrtpUGmOv_qYTWESf8jLPJ4bN',
-            'PLM21IsezPrto27mG0ytAH8CGPxW_JmcwL',
-            'PLM21IsezPrtrBBSaclwpXsD-SSZfruRFY',
-            'PLM21IsezPrtpzA0jHb9SDdV_l01UQMskx',
-            'PLM21IsezPrtpxwIbLV_YYRGG5nob4bO5Z',
-            'PLM21IsezPrtpVOF02RZqmNuEJIuekohvR',
-            'PLM21IsezPrtrFX24Oun2bMu3SbGtCWipD',]
+PLAYLISTS = ['PLM21IsezPrtq15btFRo0kRbWtbRsr5DPM',]
 
 # OAUTH
 # youtubepartner scope is needed in order to use onBehalfOfContentOwner

@@ -15,28 +15,7 @@ import pandas as pd
 
 # INPUT DATA
 
-PLAYLISTS = ['PLM21IsezPrtpUGmOv_qYTWESf8jLPJ4bN',
-            'PLM21IsezPrtqj0G_yBNnFXM8-XbdWwn0L',
-            'PLM21IsezPrto27mG0ytAH8CGPxW_JmcwL',
-            'PLM21IsezPrtrqzOfnhkC_DCo2WOaE9NNj',
-            'PLM21IsezPrtolOathl8qDBG_q7JgxjZCr',
-            'PLM21IsezPrtrBBSaclwpXsD-SSZfruRFY',
-            'PLM21IsezPrtoMJEnYB7kzOm3TktWpzspK',
-            'PLM21IsezPrtpIIoEnPf_Qj5pTB_Pwujvr',
-            'PLM21IsezPrto5uyYNsnqjiiPRwwLppIMa',
-            'PLM21IsezPrtqeOf5pBJ-DhblJgFjG-zLx',
-            'PLM21IsezPrtrVQF825CaZNojRjqAgZTNB',
-            'PLM21IsezPrtqJD1i2QMeHcBNxX-Wxnw7v',
-            'PLM21IsezPrtpzA0jHb9SDdV_l01UQMskx',
-            'PLM21IsezPrtrV3UyHPlsVs-7ON_NB-R0F',
-            'PLM21IsezPrtqrmVV2zweRviD4s0Dp2lEi',
-            'PLM21IsezPrtqxwqtRpWPNvXfzEB29NF-w',
-            'PLM21IsezPrtoVrfNOScTe6DwFFpM6aRCy',
-            'PLM21IsezPrtpxwIbLV_YYRGG5nob4bO5Z',
-            'PLM21IsezPrtpVOF02RZqmNuEJIuekohvR',
-            'PLM21IsezPrtrFX24Oun2bMu3SbGtCWipD',
-            'PLM21IsezPrtqqpnOh21MbVepGtx1qm-b_',
-            'PLM21IsezPrtoVw2aFtxm9bqb0fOumkqGL',]
+PLAYLISTS = ['PLM21IsezPrtpUGmOv_qYTWESf8jLPJ4bN']
 
 # OAUTH
 # youtubepartner scope is needed in order to use onBehalfOfContentOwner
@@ -52,6 +31,49 @@ def get_authenticated_service():
   flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
   credentials = flow.run_console()
   return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
+
+
+def get_video_details(service, VIDEO_ID):
+    request = service.videos().list(
+        part = 'id,snippet,contentDetails,status,fileDetails',
+        id = VIDEO_ID,
+        onBehalfOfContentOwner = config.content_owner
+    )
+        # id, snippet, contentDetails, status, fileDetails, suggestions, 
+        # suggestions.tagSuggestions[]
+        # suggestions.editorSuggestions[]
+    response = request.execute()
+    video_metadata = response['items'][0]
+    raw_tags = response['items'][0]['snippet']['tags']
+
+    video_tags = '|'.join(raw_tags)
+    video_category = video_metadata['snippet']['categoryId']
+    video_default_language = video_metadata['snippet']['defaultLanguage']
+    video_default_audio_language = video_metadata['snippet']['defaultAudioLanguage']
+    video_duration = video_metadata['contentDetails']['duration']
+    video_licensed_content = video_metadata['contentDetails']['licensedContent']
+    video_custom_thumbnail = video_metadata['contentDetails']['hasCustomThumbnail']
+    video_default_thumbnail = video_metadata['snippet']['thumbnails']['default']['url']
+    video_maxres_thumbnail = video_metadata['snippet']['thumbnails']['maxres']['url']
+    video_upload_status = video_metadata['status']['uploadStatus']
+    video_privacy_status = video_metadata['status']['privacyStatus']
+    video_filename = video_metadata['fileDetails']['fileName']
+
+    video_data_row = {'video_tags':video_tags,
+                      'video_category':video_category,
+                      'video_default_language':video_default_language,
+                      'video_default_audio_language':video_default_audio_language,
+                      'video_duration':video_duration,
+                      'video_licensed_content':video_licensed_content,
+                      'video_custom_thumbnail':video_custom_thumbnail,
+                      'video_default_thumbnail':video_default_thumbnail,
+                      'video_maxres_thumbnail':video_maxres_thumbnail,
+                      'video_upload_status':video_upload_status,
+                      'video_privacy_status':video_privacy_status,
+                      'video_filename':video_filename}
+    
+    return(video_data_row)
+
 
 def get_playlist_videos(service, PLAYLIST_ID):
     playlistVideos = []
@@ -76,6 +98,7 @@ def get_playlist_videos(service, PLAYLIST_ID):
             playlistVideos.append(video)
 
     return(playlistVideos)
+
 
 def get_video_list(playlist_videos):
     video_list = []
@@ -110,6 +133,7 @@ def get_video_list(playlist_videos):
 
     return(video_list)
 
+
 def main():
     # When running locally, disable OAuthlib's HTTPs verification. When
     # running in production *do not* leave this option enabled.
@@ -121,7 +145,7 @@ def main():
 
         video_list = get_video_list(playlist_videos)
 
-        playlist_outfile = playlist_id + '_description.csv'
+        playlist_outfile = playlist_id + '_metadata.csv'
         with open(playlist_outfile, 'w', newline='', encoding='utf-8') as new_file:
             out_file_headers = ['video_id',
                                 'video_title',
@@ -131,13 +155,29 @@ def main():
                                 'video_position',
                                 'video_episode',
                                 'video_url',
+                                'video_tags',
+                                'video_category',
+                                'video_default_language',
+                                'video_default_audio_language',
+                                'video_duration',
+                                'video_licensed_content',
+                                'video_custom_thumbnail',
+                                'video_default_thumbnail',
+                                'video_maxres_thumbnail',
+                                'video_upload_status',
+                                'video_privacy_status',
+                                'video_filename',
             ]
             out_writer = csv.DictWriter(new_file, fieldnames = out_file_headers)
             out_writer.writeheader()
 
             for video in video_list:
-                out_writer.writerow(video)
-                print(video)
+                video_metadata = get_video_details(service, video.get('video_id'))
+                video_output = {}
+                video_output.update(video)
+                video_output.update(video_metadata)
+                out_writer.writerow(video_output)
+                print(video_output)
 
     print(f'Program done!')
 
