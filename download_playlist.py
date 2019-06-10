@@ -85,11 +85,6 @@ def get_video_list(playlist_videos):
 
     return(video_list)
 
-def reorder_playlist_videos(service, **kwargs):
-    results = service.playlistItems().update(
-        **kwargs
-    ).execute()
-
 def main():
     # When running locally, disable OAuthlib's HTTPs verification. When
     # running in production *do not* leave this option enabled.
@@ -101,27 +96,16 @@ def main():
 
         video_list = get_video_list(playlist_videos)
 
-        video_df = pd.DataFrame(video_list).sort_values(by=['video_episode'])
+        playlist_outfile = playlist_id + '.csv'
+        with open(playlist_outfile, 'w', newline='', encoding='utf-8') as new_file:
+            out_file_headers = ['playlist_item_id','video_id','video_title','video_url','video_position','video_episode']
+            out_writer = csv.DictWriter(new_file, fieldnames = out_file_headers)
+            out_writer.writeheader()
 
-        for row in video_df.itertuples(name='video_to_update'):
-            reorder_playlist_videos(service,
-                onBehalfOfContentOwner=config.content_owner,
-                part="snippet",
-                body={
-                    "id": getattr(row, 'playlist_item_id'),
-                    "snippet": {
-                        "playlistId": playlist_id,
-                        "position": getattr(row, 'video_episode') - 1,
-                        "resourceId": {
-                            "kind": "youtube#video",
-                            "videoId": getattr(row, 'video_id')
-                        }
-                    }
-                }
-            )
-            print_title = getattr(row, 'video_title')
-            print(f'Successfuly ordered {print_title}')
-        print(f'Successfuly ordered {playlist_id}')
+            for video in video_list:
+                out_writer.writerow(video)
+                print(video)
+
     print(f'Program done!')
 
 if __name__ == "__main__":

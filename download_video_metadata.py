@@ -16,12 +16,27 @@ import pandas as pd
 # INPUT DATA
 
 PLAYLISTS = ['PLM21IsezPrtpUGmOv_qYTWESf8jLPJ4bN',
+            'PLM21IsezPrtqj0G_yBNnFXM8-XbdWwn0L',
             'PLM21IsezPrto27mG0ytAH8CGPxW_JmcwL',
+            'PLM21IsezPrtrqzOfnhkC_DCo2WOaE9NNj',
+            'PLM21IsezPrtolOathl8qDBG_q7JgxjZCr',
             'PLM21IsezPrtrBBSaclwpXsD-SSZfruRFY',
+            'PLM21IsezPrtoMJEnYB7kzOm3TktWpzspK',
+            'PLM21IsezPrtpIIoEnPf_Qj5pTB_Pwujvr',
+            'PLM21IsezPrto5uyYNsnqjiiPRwwLppIMa',
+            'PLM21IsezPrtqeOf5pBJ-DhblJgFjG-zLx',
+            'PLM21IsezPrtrVQF825CaZNojRjqAgZTNB',
+            'PLM21IsezPrtqJD1i2QMeHcBNxX-Wxnw7v',
             'PLM21IsezPrtpzA0jHb9SDdV_l01UQMskx',
+            'PLM21IsezPrtrV3UyHPlsVs-7ON_NB-R0F',
+            'PLM21IsezPrtqrmVV2zweRviD4s0Dp2lEi',
+            'PLM21IsezPrtqxwqtRpWPNvXfzEB29NF-w',
+            'PLM21IsezPrtoVrfNOScTe6DwFFpM6aRCy',
             'PLM21IsezPrtpxwIbLV_YYRGG5nob4bO5Z',
             'PLM21IsezPrtpVOF02RZqmNuEJIuekohvR',
-            'PLM21IsezPrtrFX24Oun2bMu3SbGtCWipD',]
+            'PLM21IsezPrtrFX24Oun2bMu3SbGtCWipD',
+            'PLM21IsezPrtqqpnOh21MbVepGtx1qm-b_',
+            'PLM21IsezPrtoVw2aFtxm9bqb0fOumkqGL',]
 
 # OAUTH
 # youtubepartner scope is needed in order to use onBehalfOfContentOwner
@@ -69,8 +84,9 @@ def get_video_list(playlist_videos):
         playlist_item_id = video.get('id')
         video_id = video.get('snippet').get('resourceId').get('videoId')
         video_title = video.get('snippet').get('title')
-        video_url = 'https://www.youtube.com/watch?v={0}'.format(video_id)
+        video_description = video.get('snippet').get('description')
         video_position = int(video.get('snippet').get('position'))
+        video_playlist = video.get('snippet').get('playlistId')
         # Episode titles are in the form:
         # La Trepadora | Episodio 1 | Norkys Batista y Jean Paul Leroux | Telenovelas RCTV
         # This regex extracts the word 'Episodio' followed by a space into group(1)
@@ -78,17 +94,21 @@ def get_video_list(playlist_videos):
         # Then extracts a space followed by a vertical character into group(3)
         # We then assign group(2) -the episode number- into video_episode.
         video_episode = int(re.search('(Episodio\s)(\d+)(\s\|)',video_title).group(2))
+        video_url = 'https://www.youtube.com/watch?v={0}'.format(video_id)
 
-        data_row = {'playlist_item_id':playlist_item_id,'video_id':video_id,'video_title':video_title,'video_url':video_url, 'video_position':video_position, 'video_episode':video_episode}
+        data_row = {'video_id':video_id,
+                    'video_title':video_title,
+                    'video_description':video_description,
+                    'video_playlist':video_playlist,
+                    'playlist_item_id':playlist_item_id,
+                    'video_position':video_position,
+                    'video_episode':video_episode,
+                    'video_url':video_url,
+        }
         
         video_list.append(data_row)
 
     return(video_list)
-
-def reorder_playlist_videos(service, **kwargs):
-    results = service.playlistItems().update(
-        **kwargs
-    ).execute()
 
 def main():
     # When running locally, disable OAuthlib's HTTPs verification. When
@@ -101,27 +121,24 @@ def main():
 
         video_list = get_video_list(playlist_videos)
 
-        video_df = pd.DataFrame(video_list).sort_values(by=['video_episode'])
+        playlist_outfile = playlist_id + '_description.csv'
+        with open(playlist_outfile, 'w', newline='', encoding='utf-8') as new_file:
+            out_file_headers = ['video_id',
+                                'video_title',
+                                'video_description',
+                                'video_playlist',
+                                'playlist_item_id',
+                                'video_position',
+                                'video_episode',
+                                'video_url',
+            ]
+            out_writer = csv.DictWriter(new_file, fieldnames = out_file_headers)
+            out_writer.writeheader()
 
-        for row in video_df.itertuples(name='video_to_update'):
-            reorder_playlist_videos(service,
-                onBehalfOfContentOwner=config.content_owner,
-                part="snippet",
-                body={
-                    "id": getattr(row, 'playlist_item_id'),
-                    "snippet": {
-                        "playlistId": playlist_id,
-                        "position": getattr(row, 'video_episode') - 1,
-                        "resourceId": {
-                            "kind": "youtube#video",
-                            "videoId": getattr(row, 'video_id')
-                        }
-                    }
-                }
-            )
-            print_title = getattr(row, 'video_title')
-            print(f'Successfuly ordered {print_title}')
-        print(f'Successfuly ordered {playlist_id}')
+            for video in video_list:
+                out_writer.writerow(video)
+                print(video)
+
     print(f'Program done!')
 
 if __name__ == "__main__":
