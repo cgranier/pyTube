@@ -9,6 +9,7 @@ TODO.md
 notebooks/*
 data/*
 *.xlsx
+playlists.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

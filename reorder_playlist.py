@@ -14,8 +14,10 @@ import csv
 import pandas as pd
 
 # INPUT DATA
+# Create a playlists.py file and add a list of all the playlists you wish to process
+# e.g., PLAYLISTS = ['PLM21IsezPrtrQvZ__EbQ0C1Nj2i5KjHyk',]
 
-PLAYLISTS = ['PLM21IsezPrtpbAWvaAnwGuVco6AsUJPiH',]
+import playlists
 
 # OAUTH
 # youtubepartner scope is needed in order to use onBehalfOfContentOwner
