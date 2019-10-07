@@ -15,7 +15,8 @@ import pandas as pd
 
 # INPUT DATA
 
-PLAYLISTS = ['PLM21IsezPrtpUGmOv_qYTWESf8jLPJ4bN']
+import playlists
+PLAYLISTS = playlists.PLAYLISTS
 
 # OAUTH
 # youtubepartner scope is needed in order to use onBehalfOfContentOwner
