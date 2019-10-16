@@ -41,7 +41,7 @@ def get_playlist_videos(service, PLAYLIST_ID):
         if next_page_token == 'FIRST':
             next_page_token = ''
         request = service.playlistItems().list(
-        part="id,snippet",
+        part="id,snippet,status",
         onBehalfOfContentOwner=config.content_owner,
         playlistId=PLAYLIST_ID,
         maxResults=50,
@@ -57,7 +57,7 @@ def get_playlist_videos(service, PLAYLIST_ID):
 
     return(playlistVideos)
 
-def get_video_list(playlist_videos):
+def get_video_list(playlist_videos, PLAYLIST_ID):
     video_list = []
 
     for video in playlist_videos:
@@ -73,8 +73,10 @@ def get_video_list(playlist_videos):
         # Then extracts a space followed by a vertical character into group(3)
         # We then assign group(2) -the episode number- into video_episode.
         video_episode = int(re.search('(Episodio\s)(\d+)(\s\|)',video_title).group(2))
+        video_status = video.get('status').get('privacyStatus')
+        playlist_video_url = 'https://www.youtube.com/watch?v={0}&list={1}'.format(video_id, PLAYLIST_ID)
 
-        data_row = {'playlist_item_id':playlist_item_id,'video_id':video_id,'video_title':video_title,'video_url':video_url, 'video_position':video_position, 'video_episode':video_episode}
+        data_row = {'playlist_item_id':playlist_item_id,'video_id':video_id,'video_title':video_title,'video_url':video_url, 'video_position':video_position, 'video_episode':video_episode, 'video_status':video_status, 'playlist_id':PLAYLIST_ID, 'playlist_video_url':playlist_video_url}
         
         video_list.append(data_row)
 
@@ -89,11 +91,11 @@ def main():
     for playlist_id in PLAYLISTS:
         playlist_videos = get_playlist_videos(service, playlist_id)
 
-        video_list = get_video_list(playlist_videos)
+        video_list = get_video_list(playlist_videos, playlist_id)
 
         playlist_outfile = playlist_id + '.csv'
         with open(playlist_outfile, 'w', newline='', encoding='utf-8') as new_file:
-            out_file_headers = ['playlist_item_id','video_id','video_title','video_url','video_position','video_episode']
+            out_file_headers = ['playlist_item_id','video_id','video_title','video_url','video_position','video_episode','video_status','playlist_id','playlist_video_url']
             out_writer = csv.DictWriter(new_file, fieldnames = out_file_headers)
             out_writer.writeheader()
 
