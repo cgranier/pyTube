@@ -72,7 +72,13 @@ def get_video_list(playlist_videos, PLAYLIST_ID):
         # Then extracts the digits into group(2)
         # Then extracts a space followed by a vertical character into group(3)
         # We then assign group(2) -the episode number- into video_episode.
-        video_episode = int(re.search('(Episodio\s)(\d+)(\s\|)',video_title).group(2))
+        if 'Episodio' in video_title:
+            video_episode = int(re.search('(Episodio\s)(\d+)(\s\|)',video_title).group(2))
+        elif 'Episode' in video_title:
+            video_episode = int(re.search('(Episode\s)(\d+)(\s\|)',video_title).group(2))
+        else:
+            sys.exit('Non-standard title format - handle by hand.')
+
         video_status = video.get('status').get('privacyStatus')
         playlist_video_url = 'https://www.youtube.com/watch?v={0}&list={1}'.format(video_id, PLAYLIST_ID)
 

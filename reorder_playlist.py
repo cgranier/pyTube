@@ -74,8 +74,13 @@ def get_video_list(playlist_videos):
         # Then extracts the digits into group(2)
         # Then extracts a space followed by a vertical character into group(3)
         # We then assign group(2) -the episode number- into video_episode.
-        video_episode = int(re.search('(Episodio\s)(\d+)(\s\|)',video_title).group(2))
-
+        if 'Episodio' in video_title:
+            video_episode = int(re.search('(Episodio\s)(\d+)(\s\|)',video_title).group(2))
+        elif 'Episode' in video_title:
+            video_episode = int(re.search('(Episode\s)(\d+)(\s\|)',video_title).group(2))
+        else:
+            sys.exit('Non-standard title format - reorder by hand.')
+            
         data_row = {'playlist_item_id':playlist_item_id,'video_id':video_id,'video_title':video_title,'video_url':video_url, 'video_position':video_position, 'video_episode':video_episode}
         
         video_list.append(data_row)
