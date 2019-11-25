@@ -4,8 +4,8 @@ import urllib.request
 import csv
 
 # INPUT DATA
-
-PLAYLISTS = ['x6ecor']
+import playlists
+PLAYLISTS = playlists.DAILYMOTION
 
 # SETUP
 
@@ -34,7 +34,7 @@ def get_playlist_videos(PLAYLIST_ID):
 
 def main():
     for playlist in PLAYLISTS:
-        out_file = playlist + '.csv'
+        out_file = playlist + '_dailymotion.csv'
         with open(out_file, 'w', newline='', encoding='utf-8') as new_file:
             out_file_headers = ['id','title','url']
             out_writer = csv.DictWriter(new_file, fieldnames = out_file_headers)
