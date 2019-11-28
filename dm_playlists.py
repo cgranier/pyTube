@@ -75,11 +75,22 @@ def get_video_list(playlist_videos):
 def main():
     for playlist in PLAYLISTS:
         playlist_videos = get_playlist_videos(playlist)
-        for video in playlist_videos:
-            video_id = video.get('id')
-            video_title = video.get('title')
-            video_url = video.get('url')
-            print(f'Video id: {video_id} * Video title: {video_title} * Video url: {video_url}')
+        video_list = get_video_list(playlist_videos)
+        video_df = pd.DataFrame(video_list).sort_values(by=['video_episode'])
+
+        print(video_df)
+
+        # CALL API POST to reorder videos here
+
+        # for row in video_df.itertuples(name='video_to_update'):
+        #     print(f'Video id: {video_id} * Video title: {video_title} * Video url: {video_url}')
+
+
+        # for video in playlist_videos:
+        #     video_id = video.get('id')
+        #     video_title = video.get('title')
+        #     video_url = video.get('url')
+        #     print(f'Video id: {video_id} * Video title: {video_title} * Video url: {video_url}')
 
 if __name__ == "__main__":
     main()
