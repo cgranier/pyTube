@@ -22,7 +22,8 @@ api_key = config.CLIENT_ID
 api_secret = config.CLIENT_SECRET
 api_username = config.USERNAME
 api_password = config.PASSWORD
-api_url = 'https://api.dailymotion.com/'
+api_url = config.BASE_URL
+
 d.set_grant_type('password', api_key, api_secret,
     scope=['userinfo'], info={'username': api_username, 'password': api_password})
     
@@ -52,6 +53,24 @@ def get_playlist_videos(PLAYLIST_ID):
 
     return playlist_videos
 
+def get_video_list(playlist_videos):
+    video_list = []
+
+    for video in playlist_videos:
+        video_id = video.get('id')
+        video_title = video.get('title')
+        video_url = video.get('url')
+        if 'Episodio' in video_title:
+            video_episode = int(re.search('(Episodio\s)(\d+)(\s\|)',video_title).group(2))
+        elif 'Episode' in video_title:
+            video_episode = int(re.search('(Episode\s)(\d+)(\s\|)',video_title).group(2))
+        else:
+            sys.exit('Non-standard title format - reorder by hand.')
+        
+        data_row = {'video_id':video_id,'video_title':video_title,'video_url':video_url,'video_episode':video_episode}
+        video_list.append(data_row)
+
+    return video_list
 
 def main():
     for playlist in PLAYLISTS:
