@@ -10,7 +10,7 @@ import dailymotion
 
 import playlists
 # PLAYLISTS = playlists.DAILYMOTION
-PLAYLISTS = ['x6f0b9']
+PLAYLISTS = ['x6f0cn']
 
 # First version - no functions, etc.
 
@@ -35,7 +35,7 @@ d.set_grant_type('password', api_key, api_secret,
 # videos = d.get('/playlist/x6f0b9/videos', {'fields': 'id,title,url'})
 # print(json.dumps(videos))
 
-dm_get_playlist_API = '/playlist/{0}/videos'
+dm_playlist_API = '/playlist/{0}/videos'
 # dm_get_playlist_fields = {'fields': 'id,title,url', 'page'}
 
 def get_playlist_videos(PLAYLIST_ID):
@@ -45,7 +45,7 @@ def get_playlist_videos(PLAYLIST_ID):
     has_more = True
 
     while has_more:
-        response = d.get(dm_get_playlist_API.format(PLAYLIST_ID), { 'fields': 'id,title,url', 'page': page, 'limit': limit})
+        response = d.get(dm_playlist_API.format(PLAYLIST_ID), { 'fields': 'id,title,url', 'page': page, 'limit': limit})
         for video in response['list']:
             playlist_videos.append(video)
         page += 1
@@ -78,13 +78,30 @@ def main():
         video_list = get_video_list(playlist_videos)
         video_df = pd.DataFrame(video_list).sort_values(by=['video_episode'])
 
-        print(video_df)
+        print(video_df['video_id'])
 
         # CALL API POST to reorder videos here
 
         # for row in video_df.itertuples(name='video_to_update'):
         #     print(f'Video id: {video_id} * Video title: {video_title} * Video url: {video_url}')
 
+        # Reddit idea to pass video_ids to APi:
+        # https://www.reddit.com/user/semicolonator/
+        # v = df["video_id"].tolist()
+        # arg1 = '/playlist/{PLAYLIST_ID}/videos'
+        # arg2 = {'ids': ",".join(["{%s}" % i for i in v])}
+        # d.post(arg1, arg2)
+
+        video_ids = video_df['video_id'].tolist()
+        print(video_ids)
+
+        # dm_playlist_API = '/playlist/{0}/videos'
+        # d.post('/playlist/{PLAYLIST_ID}/videos', {'ids' : '{VIDEO_ID},...,{VIDEO_ID}'})
+
+        videos_in_order = {'ids': ",".join(["%s" % i for i in video_ids])}
+
+        print(videos_in_order)
+        order_api = d.post(dm_playlist_API.format(playlist), videos_in_order)
 
         # for video in playlist_videos:
         #     video_id = video.get('id')
