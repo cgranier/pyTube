@@ -1,13 +1,21 @@
 # pyTube #
 
-pyTube exists to make managing large content libraries on YouTube a bit easier. It's also an excuse for coding, learning and doing boring stuff quickly.
+pyTube exists to make managing our large content libraries on YouTube and Dailymotion a bit easier. It's also an excuse for coding, learning and doing boring stuff quickly.
 
-![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
+![Python 3.6](https://img.shields.io/badge/python-3.7-blue.svg)
 ![YouTube Data API V3](https://img.shields.io/badge/YouTube%20Data%20API-V3-red.svg)
+![Dailymotion Python SDK](https://img.shields.io/badge/Dailymotion%20Python%20SDK-API-red.svg)
+
 
 ## What's in the project ##
 
+### YouTube ###
+
 * [reorder_playlist.py](#reorder_playlist) takes a list of YouTube Playlist IDs, gathers the videos in each playlist and reorders them according to their episode number. This is highly customized to our internal needs, but with minor modifications should work with any Playlist you own.
+
+### Dailymotion ###
+
+* [dm_playlists.py](#dm_playlists) takes a list of Dailymotion Playlist IDs, gathers the videos in each playlist and reorders them according to their episode number. This is highly customized to our internal needs, but with minor modifications should work with any Playlist you own. After reordering the playlist, it writes out the episodes' id, order, title and description to a local .csv file.
 
 ### These have been moved to the legacy folder
 
@@ -30,6 +38,12 @@ git clone https://github.com/cgranier/pyTube.git
 ```bash
 pip install --upgrade google-api-python-client
 pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2
+```
+
+* Install the Dailymotion [libraries](https://github.com/dailymotion/dailymotion-sdk-python):
+
+```bash
+pip install dailymotion
 ```
 
 * Install additional libraries
@@ -56,11 +70,24 @@ The project doesn't need an API key anymore, as it uses OAuth to authenticate yo
 
 * Move the downloaded file to your working directory and rename it client_secret.json.
 
-2. Create a _config.py_ file
+2. Create a _config.py_ file and add your YouTube API credentials:
 
 ```
-api_key = INSERT YOUR API KEY HERE
-content_owner = INSERT YOUR CONTENT OWNER ID HERE (This is for MCN/CMS accounts only)
+api_key = '[YOUR API KEY]'
+content_owner = '[YOUR CONTENT OWNER ID]' (This is for MCN/CMS accounts only)
+```
+
+3. Add your Dailymotion API credentials to _config.py_:
+
+```
+CLIENT_ID = '[YOUR API KEY]'
+CLIENT_SECRET = '[YOUR API SECRET]'
+USERNAME = '[YOUR USERNAME]'
+PASSWORD = '[YOUR PASSWORD]'
+REDIRECT_URI = '[YOUR REDIRECT URI]'
+BASE_URL = 'https://api.dailymotion.com'
+OAUTH_AUTHORIZE_URL = 'https://www.dailymotion.com/oauth/authorize'
+OAUTH_TOKEN_URL = 'https://api.dailymotion.com/oauth/token'
 ```
 
 ## reorder_playlist ##
@@ -71,8 +98,8 @@ reorder_playlist allows you to download a list of videos within a playlist and m
 
 It currently downloads the following data, but more data is available:
 
-* playlist_item_id_: the video's ID within the playlist. This is different than the video's ID and is necessary for updating the video within the playlist.
-* video_id_: the video's ID on YouTube.
+* playlist_item_id: the video's ID within the playlist. This is different than the video's ID and is necessary for updating the video within the playlist.
+* video_id: the video's ID on YouTube.
 * video_title: the video's title.
 * video_position: the video's position within the playlist.
 
@@ -116,6 +143,53 @@ The resulting dictionary is converted into a Pandas dataframe and reordered by e
 Calls youtube.playlistItems().update with new position data for each episode. Episodes need to be ordered from first to last in order to keep the proper position within the playlist.
 
 **Note:** By default, YouTube limits API queries to 10,000 quota points per day. Reordering one video uses up 53 quota points right now, so you will be limited to around 180 videos per day.
+
+## dm_playlists ##
+
+### Description ###
+
+dm_playlists allows you to download a list of videos within a playlist and modify their order within the playlist.
+
+It currently downloads the following data, but more data is available:
+
+* video_id: the video's ID on Dailymotion.
+* video_title: the video's title.
+* video_url: the video's url in Dailymotion.
+* video_description: the video's metadata description.
+
+### Arguments ###
+
+For dm_playlists you must provide a list of playlist ids:
+
+```python
+DAILYMOTION = ['playlist_id_1',...,'playlist_id_n']
+```
+
+### Run the code ###
+
+```bash
+python dm_playlists.py
+```
+
+### Functions ###
+
+1. get_playlist_videos
+
+Uses the Dailymotion API to GET a list of videos belonging to a playlist. It paginates through the list until no more videos are available and returns the results in playlist_videos[].
+
+2. get_video_list
+
+Goes through playlist_videos and uses a regex to determine the relevant episode number for every video in the list. Stores the new list with episode numbers in video_list.
+
+NOTE: We could (should?) probably combine 1. and 2. into a single function.
+
+3. reorder_videos
+
+Uses the Dailymotion API to POST an ordered list of videos. The playlist will have the videos in the same order as the ids posted. Uses a Pandas dataframe created from video_list and sorted by episode. The video ids (now in order) are posted via the API, thus reordering the playlists.
+
+4. create_ordered_csv
+
+Writes the dataframe out to a csv file, named according to the playlist id. Currently writes it out to the active directory.
 
 ## Contribution guidelines ##
 

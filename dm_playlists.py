@@ -64,7 +64,7 @@ def get_video_list(playlist_videos):
 
 def reorder_videos(playlist_id, video_ids):
     # Thanks to Reddit user https://www.reddit.com/user/semicolonator/
-    # for his help with this code to create the API call
+    # for helping out with this code to create the API call
     videos_in_order = {'ids': ",".join(["%s" % i for i in video_ids])}
     order_api = d.post(dm_playlist_API.format(playlist_id), videos_in_order)
     print(f'Playlist {playlist_id} ordered!')
