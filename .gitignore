@@ -5,6 +5,7 @@ client_secret*
 config.py
 test*
 TODO.md
+git_howto.md
 *.ipynb*
 notebooks/*
 data/*
