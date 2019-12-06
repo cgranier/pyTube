@@ -37,7 +37,7 @@ d.set_grant_type('password', api_key, api_secret,
     scope=['userinfo'], info={'username': api_username, 'password': api_password})
 
 def read_from_csv(csv_file):
-    video_df = pd.read_csv(csv_file)
+    video_df = pd.read_csv(csv_file, encoding='utf-8')
     return video_df
 
 def main():
