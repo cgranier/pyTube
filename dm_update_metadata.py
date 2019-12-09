@@ -42,9 +42,7 @@ def read_from_csv(csv_file):
 
 def update_video_metadata(video_df):
     for row in video_df.itertuples(index=False, name='video_to_update'):
-        print(row.video_id)
-        # print(getattr(row, 'video_description'))
-        # print(getattr(row, 'video_title'))
+        print(f'Updating {row.video_title}')
         d.post(DM_PLAYLIST_API.format(row.video_id),
             {'description' : getattr(row, 'video_description'),
              'title' : getattr(row, 'video_title')})
