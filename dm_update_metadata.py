@@ -10,12 +10,6 @@ import dailymotion
 
 import argparse
 
-        # d.post('/videos', {'url' : url,
-        #                     'title' : 'my_test_upload_%s' % time.strftime("%c"),
-        #                     'published' : 'true',
-        #                     'channel' : 'news'
-        #                 })
-
 parser = argparse.ArgumentParser(description='Update video metadata using a CSV.')
 parser.add_argument('csv_file', type=str, help='CSV file with metadata')
 
