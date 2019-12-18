@@ -78,7 +78,7 @@ def get_video_metadata(service,playlist_videos):
     video_list = []
     metadata = []
 
-    for video in tqdm(playlist_videos):
+    for video in tqdm(playlist_videos, desc="Current playlist", unit='videos'):
 
         # From playlist_videos we get:
         playlist_id = video.get('snippet').get('playlistId')
@@ -139,7 +139,7 @@ def main():
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     service = get_authenticated_service()
 
-    for playlist_id in tqdm(PLAYLISTS):
+    for playlist_id in tqdm(PLAYLISTS, desc="Playlists", unit='Pid'):
         playlist_videos = get_playlist_videos(service, playlist_id)
         # print(f'Found all videos for playlist {playlist_id}.')
         video_list = get_video_metadata(service, playlist_videos)
