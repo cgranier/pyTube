@@ -1,35 +1,54 @@
 # -*- coding: utf-8 -*-
 
 import os
+import os.path
 import sys
-import pprint
 
+import google.oauth2.credentials
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 from tqdm import tqdm
 
-import config
 import re
 import json
 import csv
 import pandas as pd
 
+import config
 import playlists
 PLAYLISTS = playlists.PLAYLISTS
 
 CLIENT_SECRETS_FILE = "client_secret.json"
-
 SCOPES = ["https://www.googleapis.com/auth/youtube.readonly",
           "https://www.googleapis.com/auth/youtubepartner"]
 API_SERVICE_NAME = "youtube"
 API_VERSION = "v3"
 
+# Thanks to https://stackoverflow.com/a/53351160/469449 for refresh token code:
 def get_authenticated_service():
-  flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-  credentials = flow.run_console()
-  return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
+    if os.path.isfile("credentials.json"):
+        with open("credentials.json", 'r') as f:
+            creds_data = json.load(f)
+        creds = Credentials(creds_data['token'])
+
+    else:
+        flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+        creds = flow.run_console()
+        creds_data = {
+            'token': creds.token,
+            'refresh_token': creds.refresh_token,
+            'token_uri': creds.token_uri,
+            'client_id': creds.client_id,
+            'client_secret': creds.client_secret,
+            'scopes': creds.scopes
+        }
+        print(creds_data)
+        with open("credentials.json", 'w') as outfile:
+            json.dump(creds_data, outfile)
+    return build(API_SERVICE_NAME, API_VERSION, credentials = creds)
 
 def get_playlist_videos(service, PLAYLIST_ID):
     playlistVideos = []
@@ -111,7 +130,7 @@ def get_video_metadata(service,playlist_videos):
 def create_ordered_csv(playlist_id, video_df):
     csv_filename = 'youtube_playlist_metadata_{0}.csv'.format(playlist_id)
     video_df.to_csv(csv_filename, encoding='utf-8', header = True, index = None)
-    print(f'Metadata for videos in playlist {playlist_id} saved to csv file {csv_filename}!')
+    # print(f'Metadata for videos in playlist {playlist_id} saved to csv file {csv_filename}!')
     return
 
 def main():
@@ -122,13 +141,13 @@ def main():
 
     for playlist_id in tqdm(PLAYLISTS):
         playlist_videos = get_playlist_videos(service, playlist_id)
-        print(f'Found all videos for playlist {playlist_id}.')
+        # print(f'Found all videos for playlist {playlist_id}.')
         video_list = get_video_metadata(service, playlist_videos)
-        print(f'Retrieved all metadata for videos in playlist {playlist_id}.')
+        # print(f'Retrieved all metadata for videos in playlist {playlist_id}.')
         video_df = pd.DataFrame(video_list)
-        print(f'Creating CSV file for playlist {playlist_id}.')
+        # print(f'Creating CSV file for playlist {playlist_id}.')
         create_ordered_csv(playlist_id, video_df)
-        print(f'Done with playlist {playlist_id}.')
+        # print(f'Done with playlist {playlist_id}.')
 
 if __name__ == "__main__":
     main()
