@@ -1,5 +1,6 @@
 # ignore confidential stuff
 client_secret*
+credentials.json
 .vscode
 *.csv
 config.py
