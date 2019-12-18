@@ -12,6 +12,7 @@ data/*
 *.xlsx
 playlists.py
 docs/*
+tempstuff/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
