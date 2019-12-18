@@ -8,6 +8,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+from tqdm import tqdm
+
 import config
 import re
 import json
@@ -57,7 +59,7 @@ def get_video_metadata(service,playlist_videos):
     video_list = []
     metadata = []
 
-    for video in playlist_videos:
+    for video in tqdm(playlist_videos):
 
         # From playlist_videos we get:
         playlist_id = video.get('snippet').get('playlistId')
@@ -118,7 +120,7 @@ def main():
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     service = get_authenticated_service()
 
-    for playlist_id in PLAYLISTS:
+    for playlist_id in tqdm(PLAYLISTS):
         playlist_videos = get_playlist_videos(service, playlist_id)
         print(f'Found all videos for playlist {playlist_id}.')
         video_list = get_video_metadata(service, playlist_videos)
