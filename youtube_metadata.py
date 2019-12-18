@@ -45,7 +45,6 @@ def get_authenticated_service():
             'client_secret': creds.client_secret,
             'scopes': creds.scopes
         }
-        print(creds_data)
         with open("credentials.json", 'w') as outfile:
             json.dump(creds_data, outfile)
     return build(API_SERVICE_NAME, API_VERSION, credentials = creds)
