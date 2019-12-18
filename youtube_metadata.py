@@ -45,7 +45,6 @@ def get_authenticated_service():
             'client_secret': creds.client_secret,
             'scopes': creds.scopes
         }
-        print(creds_data)
         with open("credentials.json", 'w') as outfile:
             json.dump(creds_data, outfile)
     return build(API_SERVICE_NAME, API_VERSION, credentials = creds)
@@ -78,7 +77,7 @@ def get_video_metadata(service,playlist_videos):
     video_list = []
     metadata = []
 
-    for video in tqdm(playlist_videos):
+    for video in tqdm(playlist_videos, desc="Current playlist", unit='videos'):
 
         # From playlist_videos we get:
         playlist_id = video.get('snippet').get('playlistId')
@@ -139,7 +138,7 @@ def main():
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     service = get_authenticated_service()
 
-    for playlist_id in tqdm(PLAYLISTS):
+    for playlist_id in tqdm(PLAYLISTS, desc="Playlists", unit='Pid'):
         playlist_videos = get_playlist_videos(service, playlist_id)
         # print(f'Found all videos for playlist {playlist_id}.')
         video_list = get_video_metadata(service, playlist_videos)
