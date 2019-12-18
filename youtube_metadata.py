@@ -60,7 +60,7 @@ def get_video_metadata(service,playlist_videos):
     for video in playlist_videos:
 
         # From playlist_videos we get:
-        playlist_id = video.get('playlistId')
+        playlist_id = video.get('snippet').get('playlistId')
         playlist_item_id = video.get('id')
         video_id = video.get('snippet').get('resourceId').get('videoId')
         video_position = int(video.get('snippet').get('position'))
@@ -73,20 +73,17 @@ def get_video_metadata(service,playlist_videos):
         metadata = request.execute()
 
         # From metadata we get:
-        for single_video in metadata['items']:
-            channel_name = single_video.get('snippet').get('channelTitle')
-            channel_id = single_video.get('snippet').get('channelId')
-            video_title = single_video.get('snippet').get('title')
-            video_description = single_video.get('snippet').get('description')
-            video_tags = ('|'.join(single_video.get('snippet').get('tags')))
-            
-            video_published_at = single_video.get('snippet').get('publishedAt')
-            video_default_language = single_video.get('snippet').get('defaultLanguage')
-            video_default_audio_language = single_video.get('snippet').get('defaultAudioLanguage')
-            video_duration = single_video.get('contentDetails').get('duration')
-            video_privacy_status = single_video.get('status').get('privacyStatus')
-            video_file_details = single_video.get('fileDetails').get('fileName')
-
+        channel_name = metadata['items'][0]['snippet']['channelTitle']
+        channel_id = metadata['items'][0]['snippet']['channelId']
+        video_title = metadata['items'][0]['snippet']['title']
+        video_description = metadata['items'][0]['snippet']['description']
+        video_tags = ('|'.join(metadata['items'][0]['snippet']['tags']))
+        video_published_at = metadata['items'][0]['snippet']['publishedAt']
+        video_default_language = metadata['items'][0]['snippet']['defaultLanguage']
+        video_default_audio_language = metadata['items'][0]['snippet']['defaultAudioLanguage']
+        video_duration = metadata['items'][0]['contentDetails']['duration']
+        video_privacy_status = metadata['items'][0]['status']['privacyStatus']
+        video_file_details = metadata['items'][0]['fileDetails']['fileName']
 
         data_row = {'playlist_id':playlist_id,
                     'playlist_item_id':playlist_item_id,
@@ -123,9 +120,13 @@ def main():
 
     for playlist_id in PLAYLISTS:
         playlist_videos = get_playlist_videos(service, playlist_id)
+        print(f'Found all videos for playlist {playlist_id}.')
         video_list = get_video_metadata(service, playlist_videos)
+        print(f'Retrieved all metadata for videos in playlist {playlist_id}.')
         video_df = pd.DataFrame(video_list)
+        print(f'Creating CSV file for playlist {playlist_id}.')
         create_ordered_csv(playlist_id, video_df)
+        print(f'Done with playlist {playlist_id}.')
 
 if __name__ == "__main__":
     main()
