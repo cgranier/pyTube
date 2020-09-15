@@ -14,6 +14,9 @@ data/*
 playlists.py
 docs/*
 tempstuff/*
+thumbnails/*
+not-downloaded.txt
+*.md5
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
