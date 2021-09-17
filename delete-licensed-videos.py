@@ -44,7 +44,8 @@ def get_video_details(service, VIDEO_ID):
 
     response = request.execute()
     video_metadata = response['items'][0]
-    raw_tags = response['items'][0]['snippet']['tags']
+    # raw_tags = response['items'][0]['snippet']['tags']
+    raw_tags = 'blank'
 
     video_tags = '|'.join(raw_tags)
     video_category = video_metadata['snippet']['categoryId']
